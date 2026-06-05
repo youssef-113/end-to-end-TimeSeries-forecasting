@@ -54,9 +54,9 @@ st.markdown('<div class="subtitle">End-to-End Analysis: Operations, QA & Sales T
 @st.cache_data
 def load_data():
     try:
-        
         BASE_DIR = Path(__file__).resolve().parent
-        DATA_PATH = BASE_DIR / "data" / "data_cleaned.csv"
+        ROOT_DIR = BASE_DIR.parent 
+        DATA_PATH = ROOT_DIR / "data" / "data_cleaned.csv"
         df = pd.read_csv(DATA_PATH)
         # Convert date columns to datetime first
         date_cols = ['Assign Date', 'Finish Date', 'Validation Date', 'Date of Sale', 
