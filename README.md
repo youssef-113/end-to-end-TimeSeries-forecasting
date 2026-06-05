@@ -419,7 +419,7 @@ jupyter notebook
 Open:
 
 ```text
-Marketing_Campaign_Analysis.ipynb
+Understanding-Cleaning-EDA-CompaignData.ipynb
 ```
 
 ---
@@ -434,6 +434,10 @@ Dashboard URL:
 
 ```text
 http://localhost:8501
+```
+or can see it in publish:
+```text
+https://end-to-end-timeseries-forecasting-mfrk3kfsg3hd7pvi5hbkw9.streamlit.app/
 ```
 
 ---
