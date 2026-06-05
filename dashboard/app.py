@@ -113,11 +113,66 @@ header { visibility: visible; }
     font-family: 'Syne', sans-serif;
     font-size: 1.8rem; font-weight: 700;
     color: #fff; line-height: 1;
+    margin-top: .5rem;
 }
 .kpi-label {
-    font-size: .78rem; font-weight: 500;
-    color: var(--text-2); margin-top: .35rem;
+    font-size: .95rem; font-weight: 600;
+    color: var(--text-1); margin-bottom: .5rem;
     text-transform: uppercase; letter-spacing: .06em;
+    cursor: help;
+    position: relative;
+}
+.kpi-wrap {
+    position: relative;
+}
+.kpi-tooltip {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0f1923;
+    border: 1px solid var(--border);
+    color: var(--text-1);
+    font-size: .85rem;
+    font-weight: 400;
+    padding: .75rem 1rem;
+    border-radius: 10px;
+    white-space: normal;
+    width: 280px;
+    max-width: 280px;
+    z-index: 9999;
+    box-shadow: 0 8px 24px rgba(0,0,0,.5);
+    text-transform: none;
+    letter-spacing: normal;
+    line-height: 1.4;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    pointer-events: none;
+}
+.kpi-wrap:hover .kpi-tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+.kpi-tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #0f1923;
+}
+.kpi-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid var(--border);
 }
 
 /* ── Section headers ── */
@@ -344,34 +399,44 @@ tab1, tab2, tab3 = st.tabs([
 
 with tab1:
 
-    total_leads    = len(fdf)
-    total_approved = int(fdf["Is Approved"].sum())
+    # KPIs calculated from FULL dataset (df) - not filtered (fdf)
+    # This ensures overall campaign performance is always visible
+    total_leads    = len(df)
+    total_approved = int(df["Is Approved"].sum())
     approval_rate  = total_approved / max(total_leads, 1) * 100
-    est_revenue    = fdf[fdf["Is Approved"] == 1]["Monthly Price"].sum()
-    avg_qs         = fdf["Quality Score %"].mean()
-    median_ttp     = fdf["Days To Payment"].median()
-    qa_coverage    = fdf["Has Qa"].mean() * 100
+    est_revenue    = df[df["Is Approved"] == 1]["Monthly Price"].sum()
+    avg_qs         = df["Quality Score %"].mean()
+    median_ttp     = df["Days To Payment"].median()
+    qa_coverage    = df["Has Qa"].mean() * 100
 
     avg_qs_str = f"{avg_qs:.1f}" if pd.notna(avg_qs) else "N/A"
     ttp_str    = f"{int(median_ttp)}d" if pd.notna(median_ttp) else "N/A"
 
     k1, k2, k3, k4, k5, k6, k7 = st.columns(7)
     kpi_defs = [
-        (k1, "", f"{total_leads:,}",      "Total Leads",        "kpi-cyan"),
-        (k2, "", f"{total_approved:,}",   "Approved Sales",      "kpi-green"),
-        (k3, "", f"{approval_rate:.1f}%", "Approval Rate",       "kpi-amber"),
-        (k4, "", f"${est_revenue:,.0f}",  "Est. Revenue / Mo",   "kpi-purple"),
-        (k5, "", avg_qs_str,              "Avg QA Score",        "kpi-teal"),
-        (k6, "⏱", ttp_str,                "Median Days → Pay",   "kpi-rose"),
-        (k7, "", f"{qa_coverage:.0f}%",   "QA Coverage",         "kpi-cyan"),
+        (k1, "", f"{total_leads:,}",      "Total Leads",        "kpi-cyan",
+         "Total number of leads in the entire campaign dataset"),
+        (k2, "", f"{total_approved:,}",   "Approved Sales",      "kpi-green",
+         "Total number of approved sales (Is Approved = 1) in the entire campaign"),
+        (k3, "", f"{approval_rate:.1f}%", "Approval Rate",       "kpi-amber",
+         f"Overall conversion rate: (Approved Sales / Total Leads) × 100 = {approval_rate:.1f}%"),
+        (k4, "", f"${est_revenue:,.0f}",  "Est. Revenue / Mo",   "kpi-purple",
+         "Total monthly recurring revenue from all approved sales in the campaign"),
+        (k5, "", avg_qs_str,              "Avg QA Score",        "kpi-teal",
+         "Average quality score across all QA-reviewed records in the campaign"),
+        (k6, "", ttp_str,                "Median Days → Pay",   "kpi-rose",
+         "Median time from creation date to payment date across all paid sales"),
+        (k7, "", f"{qa_coverage:.0f}%",   "QA Coverage",         "kpi-cyan",
+         f"Percentage of records that received QA review: (Has Qa = 1 / Total Leads) × 100 = {qa_coverage:.0f}%"),
     ]
-    for col, icon, val, label, cls in kpi_defs:
+    for col, icon, val, label, cls, tooltip in kpi_defs:
         with col:
             st.markdown(f"""
             <div class="kpi-wrap {cls}">
+              <div class="kpi-tooltip">{tooltip}</div>
+              <div class="kpi-label">{label} ℹ</div>
               <div class="kpi-icon">{icon}</div>
               <div class="kpi-val">{val}</div>
-              <div class="kpi-label">{label}</div>
             </div>""", unsafe_allow_html=True)
 
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
