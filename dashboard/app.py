@@ -43,8 +43,11 @@ st.markdown("""
 .stApp { background: var(--bg-base); font-family: 'DM Sans', sans-serif; }
 .block-container { padding: 1.5rem 2.5rem 4rem; max-width: 1600px; }
 
-/* ── Hide default Streamlit chrome ── */
-#MainMenu, footer, header { visibility: hidden; }
+/* ── Hide default Streamlit chrome (keep header for sidebar toggle) ── */
+#MainMenu, footer { visibility: hidden; }
+header { visibility: visible; }
+/* Hide the main menu button in header but keep sidebar toggle */
+#MainMenu button { visibility: hidden; }
 
 /* ── Hero banner ── */
 .hero {
