@@ -406,13 +406,16 @@ with tab1:
     approval_rate  = total_approved / max(total_leads, 1) * 100
     est_revenue    = df[df["Is Approved"] == 1]["Monthly Price"].sum()
     avg_qs         = df["Quality Score %"].mean()
-    median_ttp     = df["Days To Payment"].median()
+    # Payment Completion Rate: % of approved sales that received payment
+    paid_sales     = df[df["Is Approved"] == 1]["Date of Payment"].notna().sum()
+    payment_rate   = (paid_sales / max(total_approved, 1)) * 100
+    # Lead-to-Payment Rate: % of all leads that resulted in payment (complete funnel)
+    lead_to_payment_rate = (df["Payment Received"].sum() / max(total_leads, 1)) * 100
     qa_coverage    = df["Has Qa"].mean() * 100
 
     avg_qs_str = f"{avg_qs:.1f}" if pd.notna(avg_qs) else "N/A"
-    ttp_str    = f"{int(median_ttp)}d" if pd.notna(median_ttp) else "N/A"
 
-    k1, k2, k3, k4, k5, k6, k7 = st.columns(7)
+    k1, k2, k3, k4, k5, k6, k7, k8 = st.columns(8)
     kpi_defs = [
         (k1, "", f"{total_leads:,}",      "Total Leads",        "kpi-cyan",
          "Total number of leads in the entire campaign dataset"),
@@ -424,9 +427,11 @@ with tab1:
          "Total monthly recurring revenue from all approved sales in the campaign"),
         (k5, "", avg_qs_str,              "Avg QA Score",        "kpi-teal",
          "Average quality score across all QA-reviewed records in the campaign"),
-        (k6, "", ttp_str,                "Median Days → Pay",   "kpi-rose",
-         "Median time from creation date to payment date across all paid sales"),
-        (k7, "", f"{qa_coverage:.0f}%",   "QA Coverage",         "kpi-cyan",
+        (k6, "", f"{payment_rate:.1f}%", "Payment Rate",        "kpi-rose",
+         f"Payment completion rate: (Paid Sales / Approved Sales) × 100 = {payment_rate:.1f}% - shows cash collection efficiency"),
+        (k7, "", f"{lead_to_payment_rate:.1f}%", "Lead-to-Payment", "kpi-purple",
+         f"Complete funnel rate: (Payment Received / Total Leads) × 100 = {lead_to_payment_rate:.1f}% - measures end-to-end conversion from lead to cash"),
+        (k8, "", f"{qa_coverage:.0f}%",   "QA Coverage",         "kpi-cyan",
          f"Percentage of records that received QA review: (Has Qa = 1 / Total Leads) × 100 = {qa_coverage:.0f}%"),
     ]
     for col, icon, val, label, cls, tooltip in kpi_defs:
@@ -441,7 +446,6 @@ with tab1:
 
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
 
-    # ── Row 1: Lead Disposition + Product Mix ────────────────────────────────
     col_a, col_b = st.columns(2, gap="medium")
 
     with col_a:
