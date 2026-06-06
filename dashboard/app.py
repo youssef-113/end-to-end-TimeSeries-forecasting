@@ -948,12 +948,14 @@ with tab3:
                 from prophet import Prophet
                 with st.spinner("Training Prophet model…"):
                     pdf = daily[["ds", "leads"]].rename(columns={"leads": "y"})
-                    m = Prophet(
-                        yearly_seasonality=False,
-                        weekly_seasonality=True,
-                        daily_seasonality=False,
-                        changepoint_prior_scale=0.1,
-                        interval_width=0.80,
+                    m=Prophet(
+                            yearly_seasonality=False,
+                            weekly_seasonality=True,
+                            daily_seasonality=False,
+                            changepoint_prior_scale=0.05,
+                            seasonality_prior_scale=10,
+                            seasonality_mode='multiplicative',
+                            interval_width=0.80
                     )
                     m.fit(pdf)
                     future   = m.make_future_dataframe(periods=forecast_days, freq="D")
@@ -1013,7 +1015,7 @@ with tab3:
                 st.pyplot(fig_comp, use_container_width=True)
 
             except ImportError:
-                st.warning("⚠️  Prophet not installed. Run: `pip install prophet`")
+                st.warning("Prophet not installed. Run: `pip install prophet`")
                 # Linear fallback
                 x   = np.arange(len(daily))
                 yv  = daily["leads"].values
