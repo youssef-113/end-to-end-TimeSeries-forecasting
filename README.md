@@ -3,6 +3,9 @@
 ## End-to-End Analysis: Operations, Quality Assurance, Sales Tracking & Forecasting
 
 ---
+<p align="center">
+  <img src="banner.png" width="100%">
+</p>
 
 ## Project Overview
 This project was developed as part of a Data technical assessment designed 
@@ -28,9 +31,7 @@ This project aims to answer key business questions:
 * How does quality assurance impact operational performance?
 * Which states generate the most revenue?
 * What are the expected lead and revenue trends in the coming weeks?
-<p align="center">
-  <img src="banner.png" width="100%">
-</p>
+
 
 ## Quick Start
 
